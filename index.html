@@ -22,6 +22,8 @@
       color: #fff;
       padding: 20px;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     .top-bar ul {
@@ -33,6 +35,7 @@
       width: 100%;
       top: 0;
       z-index: 999;
+      margin: 0;
     }
 
     .top-bar ul li {
@@ -63,7 +66,7 @@
     .slideshow-container {
       position: relative;
       max-width: 100%;
-      margin: 50px auto;
+      margin: 100px auto 50px auto;
       overflow: hidden;
       border-radius: 10px;
     }
@@ -80,7 +83,7 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
-    .active {
+    .slide.active {
       display: block;
     }
 
@@ -98,6 +101,7 @@
       user-select: none;
       border-radius: 50%;
       background-color: rgba(0, 0, 0, 0.5);
+      transform: translateY(-50%);
     }
 
     .next {
@@ -126,7 +130,6 @@
 
     .sidebar.open {
       left: 0;
-      transform: rotate(360deg);
     }
 
     .sidebar-toggle {
@@ -235,7 +238,7 @@
       }
 
       .slideshow-container {
-        margin: 30px auto;
+        margin: 60px auto 30px auto;
       }
 
       .prev, .next {
@@ -307,14 +310,14 @@
   <button class="next" onclick="changeSlide(1)">&#10095;</button>
 
   <!-- FSSAI Section -->
-  <section id="about" class="fssai">
-    <img src="https://5.imimg.com/data5/CI/YV/MY-28277014/fssai-license-250x250.png" alt="FSSAI Certified">
+  <section class="fssai">
+    <img src="FSSAI.jpg" alt="FSSAI Logo">
   </section>
 
-  <!-- Menu Section -->
-  <section id="menu" class="dishes">
+  <!-- Dishes Slider -->
+  <section class="dishes">
     <div class="dish-slider">
-      <img src="EGG CHICKEN ROLL 1.jpg" alt="Egg Chicken Roll Small">
+        <img src="EGG CHICKEN ROLL 1.jpg" alt="Egg Chicken Roll Small">
       <img src="EGG CHICKEN ROLL 2.jpg" alt="Egg Chicken Roll Small">
       <img src="EGG CHICKEN ROLL 3.jpg" alt="Egg Chicken Roll Small">
       <img src="EGG CHICKEN ROLL 4.jpg" alt="Egg Chicken Roll Small">
@@ -324,9 +327,8 @@
       <img src="CHICKEN TIKKA 4.jpg" alt="Chicken Tikka Small">
     </div>
   </section>
-
-  <!-- Contact Section -->
-   <footer id="contact">
+  
+  <footer id="contact">
     <p class="address">CK43/71k, Chattatale Chowk Varanasi (Cloud Kitchen)<br>Dining service not available</p>
     <p class="timing">Restaurant Timing: 5 PM - 10 PM, All days of the week</p>
     <div class="socials">
@@ -334,41 +336,54 @@
     </div>
     <div class="contact">
       <p>Contact us for food supply for events, marriages, parties, etc.</p>
+
+  <!-- Contact Section -->
+  <section class="contact">
+    <h2>Contact Us</h2>
       <form onsubmit="sendWhatsAppMessage(); return false;">
         <input type="text" id="name" name="name" placeholder="Name" required>
         <input type="email" id="email" name="email" placeholder="Email" required>
         <textarea id="message" name="message" placeholder="Message" required></textarea>
         <button type="submit">Contact us on WhatsApp</button>
       </form>
-    </div>
-    <p>Website developed by Uzair B2B Services</p>
-  </footer>
-  <script>
-    let slideIndex = 0;
+  </section>
 
-    function changeSlide(n) {
-      let slides = document.getElementsByClassName("slide");
-      slides[slideIndex].classList.remove("active");
-      slideIndex = (slideIndex + n + slides.length) % slides.length;
-      slides[slideIndex].classList.add("active");
+  <footer>
+    <p>&copy; 2024 Dalmandi Delight. All rights reserved. <br>developeD by UZAIR B2B SERVICES</p>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    function showSlide(index) {
+      slides.forEach((slide, i) => {
+        slide.classList.remove('active');
+        if (i === index) {
+          slide.classList.add('active');
+        }
+      });
+    }
+
+    function changeSlide(direction) {
+      currentSlide += direction;
+      if (currentSlide >= totalSlides) {
+        currentSlide = 0;
+      } else if (currentSlide < 0) {
+        currentSlide = totalSlides - 1;
+      }
+      showSlide(currentSlide);
     }
 
     function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
     }
 
-    setInterval(() => {
-      changeSlide(1);
-    }, 5000);
-    
-     function sendWhatsAppMessage() {
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const message = document.getElementById('message').value;
-
-      const whatsappLink = `https://wa.me/919335723334?text=Name:%20${encodeURIComponent(name)}%0AEmail:%20${encodeURIComponent(email)}%0AMessage:%20${encodeURIComponent(message)}`;
-      window.open(whatsappLink, '_blank');
-     }
+    document.addEventListener('DOMContentLoaded', () => {
+      showSlide(currentSlide);
+    });
   </script>
 </body>
 </html>
