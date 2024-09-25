@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dalmandi Delight</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .top-bar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .top-bar ul li {
+      display: inline;
+      margin-right: 10px;
+    }
+
+    .top-bar ul li a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .logo {
+      width: 100px;
+      height: auto;
+    }
+
+    .slideshow-container {
+      position: relative;
+      max-width: 100%;
+      margin: auto;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      text-align: center;
+    }
+
+    .slide img {
+      width: 100%;
+      height: auto;
+    }
+
+    .active {
+      display: block;
+    }
+
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      width: auto;
+      margin-top: -22px;
+      padding: 16px;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      transition: 0.6s ease;
+      border-radius: 0 3px 3px 0;
+      user-select: none;
+    }
+
+    .next {
+      right: 0;
+      border-radius: 3px 0 0 3px;
+    }
+
+    .prev:hover, .next:hover {
+      background-color: rgba(0,0,0,0.8);
+    }
+
+    .dish-slider {
+      display: flex;
+      overflow: hidden;
+      white-space: nowrap;
+      animation: scroll 20s linear infinite;
+    }
+
+    .dish-slider img {
+      width: 150px;
+      height: auto;
+      margin: 0 5px;
+    }
+
+    @keyframes scroll {
+      from { transform: translateX(100%); }
+      to { transform: translateX(-100%); }
+    }
+
+    .address, .timing, .socials, .contact, footer p {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .contact form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .contact form input, .contact form textarea {
+      margin: 5px 0;
+      padding: 10px;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    .contact form button {
+      padding: 10px 20px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="top-bar">
+    <ul>
+      <li><a href="about.html">About</a></li>
+      <li><a href="menu.html">Menu</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <img src="DALMANDI.jpg" alt="Dalmandi Delight Logo" class="logo">
+  </header>
+
+  <!-- Slideshow -->
+  <section class="slideshow-container">
+    <div class="slide active">
+      <img src="EGG CHICKEN ROLL 1.jpg" alt="Egg Chicken Roll">
+      <h2>Try and Order Dalmandi Famous Original Lazziz Chicken & Egg Rolls</h2>
+    </div>
+    <div class="slide">
+      <img src="EGG CHICKEN ROLL 2.jpg" alt="Egg Chicken Roll">
+    </div>
+    <div class="slide">
+      <img src="EGG CHICKEN ROLL 3.jpg" alt="Egg Chicken Roll">
+    </div>
+    <div class="slide">
+      <img src="EGG CHICKEN ROLL 4.jpg" alt="Egg Chicken Roll">
+    </div>
+    <!-- Dish 2 -->
+    <div class="slide">
+      <img src="CHICKEN TIKKA 1.jpg" alt="Chicken Tikka">
+      <h2>Dalmandi Famous Original Chicken Tikka & Combo</h2>
+    </div>
+    <div class="slide">
+      <img src="CHICKEN TIKKA 2.jpg" alt="Chicken Tikka">
+    </div>
+    <div class="slide">
+      <img src="CHICKEN TIKKA 3.jpg" alt="Chicken Tikka">
+    </div>
+    <div class="slide">
+      <img src="CHICKEN TIKKA 4.jpg" alt="Chicken Tikka">
+    </div>
+  </section>
+
+  <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+  <button class="next" onclick="changeSlide(1)">&#10095;</button>
+
+  <!-- About Section -->
+  <section id="about" class="fssai">
+    <img src="https://5.imimg.com/data5/CI/YV/MY-28277014/fssai-license-250x250.png" alt="FSSAI Certified">
+  </section>
+
+  <!-- Menu Section -->
+  <section id="menu" class="dishes">
+    <div class="dish-slider">
+      <img src="EGG CHICKEN ROLL 1.jpg" alt="Egg Chicken Roll Small">
+      <img src="EGG CHICKEN ROLL 2.jpg" alt="Egg Chicken Roll Small">
+      <img src="EGG CHICKEN ROLL 3.jpg" alt="Egg Chicken Roll Small">
+      <img src="EGG CHICKEN ROLL 4.jpg" alt="Egg Chicken Roll Small">
+      <img src="CHICKEN TIKKA 1.jpg" alt="Chicken Tikka Small">
+      <img src="CHICKEN TIKKA 2.jpg" alt="Chicken Tikka Small">
+      <img src="CHICKEN TIKKA 3.jpg" alt="Chicken Tikka Small">
+      <img src="CHICKEN TIKKA 4.jpg" alt="Chicken Tikka Small">
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <footer id="contact">
+    <p class="address">CK43/71k, Chattatale Chowk Varanasi (Cloud Kitchen)<br>Dining service not available</p>
+    <p class="timing">Restaurant Timing: 5 PM - 10 PM, All days of the week</p>
+    <div class="socials">
+      <p>Follow Dalmandi Delight on <a href="https://www.instagram.com/dalmandidelight?igsh=NW56eTV6amZ2OHRw">Instagram</a></p>
+    </div>
+    <div class="contact">
+      <p>Contact us for food supply for events, marriages, parties, etc.</p>
+      <form onsubmit="sendWhatsAppMessage(); return false;">
+        <input type="text" id="name" name="name" placeholder="Name" required>
+        <input type="email" id="email" name="email" placeholder="Email" required>
+        <textarea id="message" name="message" placeholder="Message" required></textarea>
+        <button type="submit">Contact us on WhatsApp</button>
+      </form>
+    </div>
+    <p>Website developed by Uzair B2B Services</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let slideIndex = 0;
+      showSlides(slideIndex);
+
+      function showSlides(index) {
+        const slides = document.querySelectorAll('.slide');
+        slides.forEach(slide => slide.style.display = 'none');
+        slideIndex = (index + slides.length) % slides.length;
+        slides[slideIndex].style.display = 'block';
+      }
+
+      document.querySelector('.prev').addEventListener('click', () => showSlides(slideIndex - 1));
+      document.querySelector('.next').addEventListener('click', () => showSlides(slideIndex + 1));
+    });
+
+    function sendWhatsAppMessage() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const message = document.getElementById('message').value;
+
+      const whatsappLink = `https://wa.me/919335723334?text=Name:%20${encodeURIComponent(name)}%0AEmail:%20${encodeURIComponent(email)}%0AMessage:%20${encodeURIComponent(message)}`;
+      window.open(whatsappLink, '_blank');
+    }
+  </script>
+</body>
+</html>
