@@ -6,13 +6,19 @@
   <title>Dalmandi Delight</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
+      background-image: url('https://img.freepik.com/free-photo/golden-cutlery-with-textile-plate-dark-background-top-view_1220-6580.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
     }
 
+    /* Header and Navigation */
     header {
-      background-color: #333;
+      background-color: rgba(0, 0, 0, 0.7);
       color: #fff;
       padding: 20px;
       text-align: center;
@@ -20,29 +26,46 @@
 
     .top-bar ul {
       list-style-type: none;
-      padding: 0;
+      padding: 10px 0;
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.7);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 999;
     }
 
     .top-bar ul li {
-      display: inline;
-      margin-right: 10px;
+      display: inline-block;
+      margin: 0 15px;
     }
 
     .top-bar ul li a {
       color: #fff;
       text-decoration: none;
+      font-size: 18px;
+      padding: 10px;
+      transition: color 0.3s ease;
     }
 
+    .top-bar ul li a:hover {
+      color: #ffd700;
+    }
+
+    /* Logo */
     .logo {
-      width: 100px;
+      width: 180px;
       height: auto;
+      margin-bottom: 10px;
     }
 
+    /* Slideshow */
     .slideshow-container {
       position: relative;
       max-width: 100%;
-      margin: auto;
+      margin: 50px auto;
       overflow: hidden;
+      border-radius: 10px;
     }
 
     .slide {
@@ -53,38 +76,92 @@
     .slide img {
       width: 100%;
       height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .active {
       display: block;
     }
 
+    /* Slideshow navigation buttons */
     .prev, .next {
       cursor: pointer;
       position: absolute;
       top: 50%;
       width: auto;
-      margin-top: -22px;
-      padding: 16px;
+      padding: 10px;
       color: white;
       font-weight: bold;
-      font-size: 18px;
-      transition: 0.6s ease;
-      border-radius: 0 3px 3px 0;
+      font-size: 24px;
+      transition: background-color 0.6s ease;
       user-select: none;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, 0.5);
     }
 
     .next {
-      right: 0;
-      border-radius: 3px 0 0 3px;
+      right: 10px;
+    }
+
+    .prev {
+      left: 10px;
     }
 
     .prev:hover, .next:hover {
-      background-color: rgba(0,0,0,0.8);
+      background-color: #333;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 50px;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      position: fixed;
+      top: 0;
+      left: -50px;
+      transition: left 0.5s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.open {
+      left: 0;
+      transform: rotate(360deg);
+    }
+
+    .sidebar-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      font-size: 28px;
+      color: #fff;
+    }
+
+    /* FSSAI Section */
+    .fssai {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .fssai img {
+      width: 250px;
+      height: auto;
+      margin: auto;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+    }
+
+    /* Menu Section */
+    .dishes {
+      padding: 60px 0;
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.8);
     }
 
     .dish-slider {
       display: flex;
+      justify-content: center;
+      align-items: center;
       overflow: hidden;
       white-space: nowrap;
       animation: scroll 20s linear infinite;
@@ -93,7 +170,14 @@
     .dish-slider img {
       width: 150px;
       height: auto;
-      margin: 0 5px;
+      margin: 0 10px;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    }
+
+    .dish-slider img:hover {
+      transform: scale(1.1);
     }
 
     @keyframes scroll {
@@ -101,34 +185,81 @@
       to { transform: translateX(-100%); }
     }
 
-    .address, .timing, .socials, .contact, footer p {
+    /* Contact and Footer */
+    .contact, footer p {
       text-align: center;
-      margin: 10px 0;
+      margin: 20px 0;
+      padding: 10px;
     }
 
     .contact form {
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 20px;
     }
 
     .contact form input, .contact form textarea {
-      margin: 5px 0;
-      padding: 10px;
-      width: 80%;
+      margin: 10px 0;
+      padding: 15px;
+      width: 90%;
       max-width: 400px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
     }
 
     .contact form button {
-      padding: 10px 20px;
+      padding: 12px 30px;
       background-color: #333;
       color: #fff;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
+
+    .contact form button:hover {
+      background-color: #555;
+    }
+
+    /* Mobile Responsiveness */
+    @media only screen and (max-width: 768px) {
+      .logo {
+        width: 140px;
+      }
+
+      .top-bar ul li a {
+        font-size: 16px;
+        padding: 5px;
+      }
+
+      .slideshow-container {
+        margin: 30px auto;
+      }
+
+      .prev, .next {
+        font-size: 20px;
+      }
+
+      .contact form input, .contact form textarea {
+        font-size: 14px;
+        width: 95%;
+      }
+
+      .sidebar-toggle {
+        font-size: 24px;
+      }
+    }
+
   </style>
 </head>
 <body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <span class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</span>
+  </div>
+
   <!-- Navigation Bar -->
   <nav class="top-bar">
     <ul>
@@ -157,7 +288,6 @@
     <div class="slide">
       <img src="EGG CHICKEN ROLL 4.jpg" alt="Egg Chicken Roll">
     </div>
-    <!-- Dish 2 -->
     <div class="slide">
       <img src="CHICKEN TIKKA 1.jpg" alt="Chicken Tikka">
       <h2>Dalmandi Famous Original Chicken Tikka & Combo</h2>
@@ -176,7 +306,7 @@
   <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
   <button class="next" onclick="changeSlide(1)">&#10095;</button>
 
-  <!-- About Section -->
+  <!-- FSSAI Section -->
   <section id="about" class="fssai">
     <img src="https://5.imimg.com/data5/CI/YV/MY-28277014/fssai-license-250x250.png" alt="FSSAI Certified">
   </section>
@@ -196,7 +326,7 @@
   </section>
 
   <!-- Contact Section -->
-  <footer id="contact">
+   <footer id="contact">
     <p class="address">CK43/71k, Chattatale Chowk Varanasi (Cloud Kitchen)<br>Dining service not available</p>
     <p class="timing">Restaurant Timing: 5 PM - 10 PM, All days of the week</p>
     <div class="socials">
@@ -213,31 +343,32 @@
     </div>
     <p>Website developed by Uzair B2B Services</p>
   </footer>
-
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let slideIndex = 0;
-      showSlides(slideIndex);
+    let slideIndex = 0;
 
-      function showSlides(index) {
-        const slides = document.querySelectorAll('.slide');
-        slides.forEach(slide => slide.style.display = 'none');
-        slideIndex = (index + slides.length) % slides.length;
-        slides[slideIndex].style.display = 'block';
-      }
+    function changeSlide(n) {
+      let slides = document.getElementsByClassName("slide");
+      slides[slideIndex].classList.remove("active");
+      slideIndex = (slideIndex + n + slides.length) % slides.length;
+      slides[slideIndex].classList.add("active");
+    }
 
-      document.querySelector('.prev').addEventListener('click', () => showSlides(slideIndex - 1));
-      document.querySelector('.next').addEventListener('click', () => showSlides(slideIndex + 1));
-    });
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
 
-    function sendWhatsAppMessage() {
+    setInterval(() => {
+      changeSlide(1);
+    }, 5000);
+    
+     function sendWhatsAppMessage() {
       const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
       const message = document.getElementById('message').value;
 
       const whatsappLink = `https://wa.me/919335723334?text=Name:%20${encodeURIComponent(name)}%0AEmail:%20${encodeURIComponent(email)}%0AMessage:%20${encodeURIComponent(message)}`;
       window.open(whatsappLink, '_blank');
-    }
+     }
   </script>
 </body>
 </html>
