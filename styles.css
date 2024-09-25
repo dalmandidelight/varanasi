@@ -46,45 +46,58 @@ body {
   padding-top: 60px;
 }
 
-/* Slideshow Section */
-.slideshow-container {
-  width: 100%;
-  height: auto;
-  overflow: hidden;
-  position: relative;
+/* Menu Page */
+.menu-page {
+  text-align: center;
+  padding: 50px 20px;
 }
 
-/* Dishes Section Animation */
-.dishes {
-  overflow: hidden;
-  padding: 20px;
-  background-color: #f9f9f9;
+.menu-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
 }
 
-.dish-container {
-  display: flex;
-  animation: slide-left 10s linear infinite;
-}
-
-.dish-container img {
-  margin: 0 10px;
-  width: 150px;
+.menu-img {
+  max-width: 100%;
   height: auto;
   border-radius: 10px;
-  object-fit: cover;
+  margin-bottom: 20px;
 }
 
-/* Keyframes for the right-to-left animation */
-@keyframes slide-left {
+/* Order Button */
+.order-button {
+  display: inline-block;
+  padding: 15px 30px;
+  background-color: #ff5733;
+  color: white;
+  font-size: 18px;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.order-button:hover {
+  background-color: #c44022;
+}
+
+.glow {
+  box-shadow: 0 0 10px #ff5733, 0 0 20px #ff5733, 0 0 30px #ff5733;
+  animation: glow-animation 1.5s infinite;
+}
+
+@keyframes glow-animation {
   0% {
-    transform: translateX(100%);
+    box-shadow: 0 0 10px #ff5733, 0 0 20px #ff5733, 0 0 30px #ff5733;
+  }
+  50% {
+    box-shadow: 0 0 20px #ff5733, 0 0 40px #ff5733, 0 0 60px #ff5733;
   }
   100% {
-    transform: translateX(-100%);
+    box-shadow: 0 0 10px #ff5733, 0 0 20px #ff5733, 0 0 30px #ff5733;
   }
 }
 
-/* Footer Section */
+/* Footer */
 footer {
   background-color: #333;
   color: white;
@@ -99,12 +112,17 @@ footer a {
 
 /* Responsive Styles for Phones */
 @media (max-width: 768px) {
-  .dish-container img {
-    width: 100px;
-  }
-
   .top-bar ul li a {
     font-size: 16px;
     padding: 8px 15px;
+  }
+
+  .menu-page h1 {
+    font-size: 2rem;
+  }
+
+  .order-button {
+    padding: 10px 20px;
+    font-size: 16px;
   }
 }
