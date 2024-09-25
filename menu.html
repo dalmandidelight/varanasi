@@ -4,7 +4,136 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menu - Dalmandi Delight</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* General styles for responsiveness */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background-color: rgba(0, 0, 0, 0.8);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+    }
+
+    .top-bar ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+
+    .top-bar ul li {
+      margin: 0 20px;
+    }
+
+    .top-bar ul li a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 18px;
+      padding: 10px 20px;
+      display: inline-block;
+    }
+
+    .top-bar ul li a:hover {
+      background-color: #ff5733;
+      border-radius: 5px;
+    }
+
+    /* Add padding to avoid overlap with fixed navbar */
+    body {
+      padding-top: 60px;
+    }
+
+    /* Menu Page */
+    .menu-page {
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    .menu-page h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    .menu-img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* Order Button */
+    .order-button {
+      display: inline-block;
+      padding: 15px 30px;
+      background-color: #ff5733;
+      color: white;
+      font-size: 18px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .order-button:hover {
+      background-color: #c44022;
+    }
+
+    .glow {
+      box-shadow: 0 0 10px #ff5733, 0 0 20px #ff5733, 0 0 30px #ff5733;
+      animation: glow-animation 1.5s infinite;
+    }
+
+    @keyframes glow-animation {
+      0% {
+        box-shadow: 0 0 10px #ff5733, 0 0 20px #ff5733, 0 0 30px #ff5733;
+      }
+      50% {
+        box-shadow: 0 0 20px #ff5733, 0 0 40px #ff5733, 0 0 60px #ff5733;
+      }
+      100% {
+        box-shadow: 0 0 10px #ff5733, 0 0 20px #ff5733, 0 0 30px #ff5733;
+      }
+    }
+
+    /* Footer */
+    footer {
+      background-color: #333;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    footer a {
+      color: #ff5733;
+      text-decoration: none;
+    }
+
+    /* Responsive Styles for Phones */
+    @media (max-width: 768px) {
+      .top-bar ul li a {
+        font-size: 16px;
+        padding: 8px 15px;
+      }
+
+      .menu-page h1 {
+        font-size: 2rem;
+      }
+
+      .order-button {
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    }
+  </style>
 </head>
 <body>
 
