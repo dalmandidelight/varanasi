@@ -1,0 +1,71 @@
+body {
+  background: url('https://img.freepik.com/free-photo/golden-cutlery-with-textile-plate-dark-background-top-view_1220-6580.jpg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Arial', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+}
+
+.logo {
+  width: 150px;
+}
+
+.slideshow-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: auto;
+  overflow: hidden;
+}
+
+.slide {
+  display: none;
+}
+
+.slide img {
+  width: 100%;
+  height: auto;
+}
+
+.fssai {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.dishes img {
+  width: 100px;
+  height: auto;
+  margin: 5px;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.order-button {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  background-color: #ff5733;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
+.order-button.glow {
+  animation: glowing 1.5s infinite;
+}
+
+@keyframes glowing {
+  0% { box-shadow: 0 0 5px #ff5733; }
+  50% { box-shadow: 0 0 20px #ff5733; }
+  100% { box-shadow: 0 0 5px #ff5733; }
+}
