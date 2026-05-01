@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dalmandi Delight — Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #ECC94B;
+            --gold-dim: #b99d32;
+            --bg: #0d0e12;
+            --surface: #16181f;
+            --surface2: #1e2029;
+            --border: #2a2d38;
+            --text: #e8eaf0;
+            --text-muted: #7a7f96;
+            --red: #ef4444;
+            --green: #22c55e;
+            --blue: #3b82f6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        h1,h2,h3,h4 { font-family: 'Syne', sans-serif; }
+
+        /* ── LOGIN ── */
+        #login-screen {
+            position: fixed; inset: 0; z-index: 999;
+            background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px 44px;
+            width: 100%; max-width: 420px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+        }
+        .login-logo { text-align: center; margin-bottom: 32px; }
+        .login-logo .icon { font-size: 40px; color: var(--gold); margin-bottom: 12px; }
+        .login-logo h1 { font-size: 24px; color: var(--gold); letter-spacing: 1px; }
+        .login-logo p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .login-card input {
+            width: 100%; padding: 14px 16px;
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text); font-size: 15px;
+            margin-bottom: 14px; outline: none; transition: border .2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .login-card input:focus { border-color: var(--gold); }
+        .login-card .btn-login {
+            width: 100%; padding: 14px;
+            background: var(--gold); color: #0d0e12;
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px;
+            border: none; border-radius: 10px; cursor: pointer;
+            transition: background .2s, transform .1s;
+        }
+        .login-card .btn-login:hover { background: #f5d76e; }
+        .login-card .btn-login:active { transform: scale(.98); }
+        #login-error { color: var(--red); font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+
+        /* ── APP SHELL ── */
+        #app { display: none; min-height: 100vh; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            position: fixed; top: 0; left: 0; bottom: 0; width: 240px;
+            background: var(--surface); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; z-index: 100;
+            transition: transform .3s;
+        }
+        .sidebar-brand {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-brand span { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--gold); }
+        .sidebar-brand small { display: block; color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+        .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 14px; border-radius: 10px;
+            color: var(--text-muted); font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all .2s; margin-bottom: 2px;
+        }
+        .nav-item i { width: 18px; text-align: center; font-size: 15px; }
+        .nav-item:hover { background: var(--surface2); color: var(--text); }
+        .nav-item.active { background: rgba(236,201,75,.12); color: var(--gold); }
+        .sidebar-footer {
+            padding: 16px 12px;
+            border-top: 1px solid var(--border);
+        }
+        .btn-logout {
+            width: 100%; padding: 10px;
+            background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+            color: var(--red); border-radius: 8px; cursor: pointer;
+            font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+            transition: all .2s;
+        }
+        .btn-logout:hover { background: rgba(239,68,68,.2); }
+
+        /* ── MAIN ── */
+        .main { margin-left: 240px; min-height: 100vh; }
+        .topbar {
+            padding: 20px 32px; border-bottom: 1px solid var(--border);
+            background: var(--surface); display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 50;
+        }
+        .topbar h2 { font-size: 20px; font-weight: 700; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .badge-url {
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 6px 12px; border-radius: 8px; font-size: 12px; color: var(--text-muted);
+        }
+        #script-url-input {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 12px;
+            width: 340px; outline: none; font-family: 'DM Sans', sans-serif;
+        }
+        #script-url-input:focus { border-color: var(--gold); }
+        .btn-save-url {
+            background: var(--gold); color: #0d0e12; border: none;
+            padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700;
+            cursor: pointer; font-family: 'Syne', sans-serif;
+        }
+        .content { padding: 32px; }
+
+        /* ── SECTIONS ── */
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* ── CARDS ── */
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; margin-bottom: 24px;
+        }
+        .card-title {
+            font-size: 16px; font-weight: 700; color: var(--text);
+            margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;
+        }
+
+        /* ── FORM ELEMENTS ── */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+        label { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: .5px; text-transform: uppercase; }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="url"], input[type="number"], textarea, select {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text); padding: 10px 14px; border-radius: 8px;
+            font-size: 14px; outline: none; font-family: 'DM Sans', sans-serif;
+            transition: border .2s; width: 100%;
+        }
+        input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+        textarea { resize: vertical; min-height: 80px; }
+        select option { background: var(--surface2); }
+        .toggle-row { display: flex; align-items: center; gap: 10px; }
+        .toggle { position: relative; width: 40px; height: 22px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0; background: var(--border);
+            border-radius: 22px; cursor: pointer; transition: .2s;
+        }
+        .toggle-slider:before {
+            content: ''; position: absolute; width: 16px; height: 16px;
+            background: #fff; border-radius: 50%; left: 3px; top: 3px;
+            transition: .2s;
+        }
+        .toggle input:checked + .toggle-slider { background: var(--gold); }
+        .toggle input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+        /* ── BUTTONS ── */
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: 'Syne', sans-serif; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--gold); color: #0d0e12; }
+        .btn-primary:hover { background: #f5d76e; transform: translateY(-1px); }
+        .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-danger { background: rgba(239,68,68,.1); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+        .btn-danger:hover { background: rgba(239,68,68,.2); }
+        .btn-success { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+        .btn-success:hover { background: rgba(34,197,94,.2); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        /* ── TABLE ── */
+        .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead { background: var(--surface2); }
+        th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+        td { padding: 12px 16px; border-top: 1px solid var(--border); vertical-align: middle; }
+        tr:hover td { background: rgba(255,255,255,.02); }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-veg { background: rgba(34,197,94,.15); color: var(--green); }
+        .badge-nonveg { background: rgba(239,68,68,.15); color: var(--red); }
+        .badge-active { background: rgba(34,197,94,.15); color: var(--green); }
+        .badge-inactive { background: rgba(120,120,140,.15); color: var(--text-muted); }
+        .badge-best { background: rgba(236,201,75,.15); color: var(--gold); }
+        .item-img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: var(--border); }
+        .actions { display: flex; gap: 6px; }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,.75);
+            z-index: 200; display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 20px; padding: 32px; width: 100%; max-width: 640px;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 24px; color: var(--gold); }
+        .modal-footer { margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end; }
+
+        /* ── IMAGE UPLOAD ── */
+        .upload-zone {
+            border: 2px dashed var(--border); border-radius: 12px;
+            padding: 24px; text-align: center; cursor: pointer;
+            transition: border-color .2s, background .2s;
+        }
+        .upload-zone:hover { border-color: var(--gold); background: rgba(236,201,75,.04); }
+        .upload-zone i { font-size: 28px; color: var(--text-muted); margin-bottom: 8px; }
+        .upload-zone p { font-size: 13px; color: var(--text-muted); }
+        .upload-zone small { font-size: 11px; color: var(--text-muted); }
+        .upload-preview { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .upload-preview img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border); }
+        .upload-progress { background: var(--border); border-radius: 4px; height: 6px; margin-top: 8px; overflow: hidden; display: none; }
+        .upload-progress-bar { height: 100%; background: var(--gold); border-radius: 4px; transition: width .3s; }
+
+        /* ── TOAST ── */
+        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+        .toast {
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 12px 18px; border-radius: 10px; font-size: 14px;
+            display: flex; align-items: center; gap: 10px;
+            animation: toastIn .3s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,.4);
+            min-width: 240px;
+        }
+        .toast.success { border-color: rgba(34,197,94,.4); }
+        .toast.success i { color: var(--green); }
+        .toast.error { border-color: rgba(239,68,68,.4); }
+        .toast.error i { color: var(--red); }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── STAT CARDS ── */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+        .stat-card .stat-val { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--gold); }
+        .stat-card .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+
+        /* ── TABS ── */
+        .tab-bar { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface2); padding: 4px; border-radius: 10px; width: fit-content; }
+        .tab-pill { padding: 8px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-muted); transition: all .2s; font-family: 'Syne', sans-serif; }
+        .tab-pill.active { background: var(--gold); color: #0d0e12; }
+
+        /* Color dot */
+        .dot-veg { width: 10px; height: 10px; border-radius: 50%; background: var(--green); display: inline-block; }
+        .dot-nonveg { width: 10px; height: 10px; border-radius: 50%; background: var(--red); display: inline-block; }
+
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .form-grid, .form-grid.cols-3 { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+    <div class="login-card">
+        <div class="login-logo">
+            <div class="icon"><i class="fas fa-utensils"></i></div>
+            <h1>DALMANDI DELIGHT</h1>
+            <p>Admin Control Panel</p>
+        </div>
+        <input type="email" id="login-email" placeholder="Email address" value="uzairatwork02@gmail.com">
+        <input type="password" id="login-password" placeholder="Password">
+        <button class="btn-login" onclick="doLogin()">Sign In</button>
+        <p id="login-error"><i class="fas fa-exclamation-circle"></i> Invalid credentials</p>
+    </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <span>DALMANDI</span>
+            <small>Admin Panel</small>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" onclick="showSection('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</div>
+            <div class="nav-item" onclick="showSection('config')"><i class="fas fa-cog"></i> Restaurant Info</div>
+            <div class="nav-item" onclick="showSection('menu')"><i class="fas fa-utensils"></i> Menu & Dishes</div>
+            <div class="nav-item" onclick="showSection('categories')"><i class="fas fa-tags"></i> Categories</div>
+            <div class="nav-item" onclick="showSection('gallery')"><i class="fas fa-images"></i> Gallery</div>
+            <div class="nav-item" onclick="showSection('blogs')"><i class="fas fa-newspaper"></i> Blog Posts</div>
+            <div class="nav-item" onclick="showSection('videos')"><i class="fab fa-youtube"></i> Videos</div>
+            <div class="nav-item" onclick="showSection('partners')"><i class="fas fa-motorcycle"></i> Order Partners</div>
+            <div class="nav-item" onclick="showSection('social')"><i class="fas fa-share-alt"></i> Social Media</div>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+        <div class="topbar">
+            <h2 id="page-title">Dashboard</h2>
+            <div class="topbar-right">
+                <input id="script-url-input" type="url" placeholder="Paste your Google Apps Script Web App URL here…">
+                <button class="btn-save-url" onclick="saveScriptUrl()">Save URL</button>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <!-- ── DASHBOARD ── -->
+            <div id="section-dashboard" class="section active">
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card"><div class="stat-val" id="stat-dishes">–</div><div class="stat-label">Menu Items</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-cats">–</div><div class="stat-label">Categories</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-gallery">–</div><div class="stat-label">Gallery Photos</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-blogs">–</div><div class="stat-label">Blog Posts</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-partners">–</div><div class="stat-label">Order Partners</div></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Quick Start Guide</div>
+                    <div style="color:var(--text-muted);font-size:14px;line-height:1.8">
+                        <p>1. Paste your <strong style="color:var(--gold)">Google Apps Script Web App URL</strong> in the top-right input and click Save.</p>
+                        <p>2. Use the sidebar to manage Menu, Gallery, Blogs, and more.</p>
+                        <p>3. For image uploads, upload to Google Drive and paste the shareable URL.</p>
+                        <p>4. All changes sync live to your website via the script backend.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── CONFIG ── -->
+            <div id="section-config" class="section">
+                <div class="card">
+                    <div class="card-title">Restaurant Information
+                        <button class="btn btn-primary btn-sm" onclick="saveConfig()"><i class="fas fa-save"></i> Save Changes</button>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Restaurant Name</label><input type="text" id="cfg-name" placeholder="Dalmandi Delight"></div>
+                        <div class="form-group"><label>Tagline</label><input type="text" id="cfg-tagline" placeholder="Where Flavor Meets Perfection"></div>
+                        <div class="form-group full"><label>Description</label><textarea id="cfg-desc" rows="3" placeholder="About your restaurant…"></textarea></div>
+                        <div class="form-group"><label>Address</label><input type="text" id="cfg-address" placeholder="CK43/71k, Chattatale Chowk"></div>
+                        <div class="form-group"><label>City</label><input type="text" id="cfg-city" placeholder="Varanasi"></div>
+                        <div class="form-group"><label>State</label><input type="text" id="cfg-state" placeholder="Uttar Pradesh"></div>
+                        <div class="form-group"><label>Phone</label><input type="tel" id="cfg-phone" placeholder="+91-XXXXXXXXXX"></div>
+                        <div class="form-group"><label>WhatsApp (no +)</label><input type="text" id="cfg-whatsapp" placeholder="91XXXXXXXXXX"></div>
+                        <div class="form-group"><label>Email</label><input type="email" id="cfg-email" placeholder="info@dalmandidelight.com"></div>
+                        <div class="form-group"><label>Timing</label><input type="text" id="cfg-timing" placeholder="5 PM - 10 PM, All days"></div>
+                        <div class="form-group"><label>Logo URL</label><input type="url" id="cfg-logo" placeholder="https://…"></div>
+                        <div class="form-group"><label>Hero Image URL</label><input type="url" id="cfg-hero" placeholder="https://…"></div>
+                        <div class="form-group"><label>FSSAI Number</label><input type="text" id="cfg-fssai-num" placeholder="XXXXXXXXXX"></div>
+                        <div class="form-group"><label>FSSAI Image URL</label><input type="url" id="cfg-fssai-img" placeholder="https://…"></div>
+                        <div class="form-group"><label>Instagram URL</label><input type="url" id="cfg-instagram" placeholder="https://instagram.com/…"></div>
+                        <div class="form-group"><label>Google Maps URL</label><input type="url" id="cfg-maps" placeholder="https://maps.google.com/…"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Image Upload Helper</div>
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Upload an image to Google Drive, then use the shareable link below.</p>
+                    <div class="upload-zone" onclick="document.getElementById('drive-file-input').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to select image</p>
+                        <small>JPG, PNG, WEBP • Max 5MB</small>
+                    </div>
+                    <input type="file" id="drive-file-input" accept="image/*" style="display:none" onchange="handleImageUpload(this, 'cfg-hero')">
+                    <div class="upload-progress" id="upload-progress-cfg"><div class="upload-progress-bar" id="upload-bar-cfg" style="width:0%"></div></div>
+                    <div id="upload-result-cfg" style="margin-top:10px;font-size:13px;color:var(--text-muted)"></div>
+                </div>
+            </div>
+
+            <!-- ── MENU ── -->
+            <div id="section-menu" class="section">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="font-size:18px">Dishes</h3>
+                    <button class="btn btn-primary" onclick="openDishModal()"><i class="fas fa-plus"></i> Add Dish</button>
+                </div>
+                <div class="card" style="padding:0">
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr>
+                                <th>Image</th><th>Dish</th><th>Category</th><th>Price</th><th>Type</th><th>Status</th><th>Actions</th>
+                            </tr></thead>
+                            <tbody id="dishes-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── CATEGORIES ── -->
+            <div id="section-categories" class="section">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="font-size:18px">Menu Categories</h3>
+                    <button class="btn btn-primary" onclick="openCatModal()"><i class="fas fa-plus"></i> Add Category</button>
+                </div>
+                <div class="card" style="padding:0">
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Category</th><th>Description</th><th>Order</th><th>Active</th><th>Actions</th></tr></thead>
+                            <tbody id="cats-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── GALLERY ── -->
+            <div id="section-gallery" class="section">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="font-size:18px">Gallery Images</h3>
+                    <button class="btn btn-primary" onclick="openGalleryModal()"><i class="fas fa-plus"></i> Add Image</button>
+                </div>
+                <div class="card" style="padding:0">
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Image</th><th>Title</th><th>Description</th><th>Order</th><th>Active</th><th>Actions</th></tr></thead>
+                            <tbody id="gallery-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── BLOGS ── -->
+            <div id="section-blogs" class="section">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="font-size:18px">Blog Posts</h3>
+                    <button class="btn btn-primary" onclick="openBlogModal()"><i class="fas fa-plus"></i> New Post</button>
+                </div>
+                <div class="card" style="padding:0">
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Image</th><th>Title</th><th>Author</th><th>Date</th><th>Active</th><th>Actions</th></tr></thead>
+                            <tbody id="blogs-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── VIDEOS ── -->
+            <div id="section-videos" class="section">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="font-size:18px">YouTube Videos</h3>
+                    <button class="btn btn-primary" onclick="openVideoModal()"><i class="fas fa-plus"></i> Add Video</button>
+                </div>
+                <div class="card" style="padding:0">
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Video ID</th><th>Title</th><th>Description</th><th>Order</th><th>Active</th><th>Actions</th></tr></thead>
+                            <tbody id="videos-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── PARTNERS ── -->
+            <div id="section-partners" class="section">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="font-size:18px">Ordering Partners</h3>
+                    <button class="btn btn-primary" onclick="openPartnerModal()"><i class="fas fa-plus"></i> Add Partner</button>
+                </div>
+                <div class="card" style="padding:0">
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Name</th><th>Logo URL</th><th>Order URL</th><th>Order</th><th>Active</th><th>Actions</th></tr></thead>
+                            <tbody id="partners-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── SOCIAL ── -->
+            <div id="section-social" class="section">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="font-size:18px">Social Media Links</h3>
+                    <button class="btn btn-primary" onclick="openSocialModal()"><i class="fas fa-plus"></i> Add Link</button>
+                </div>
+                <div class="card" style="padding:0">
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Platform</th><th>Icon Class</th><th>URL</th><th>Order</th><th>Active</th><th>Actions</th></tr></thead>
+                            <tbody id="social-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /content -->
+    </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══════════════ MODALS ══════════════ -->
+
+<!-- Dish Modal -->
+<div class="modal-overlay" id="modal-dish">
+    <div class="modal">
+        <h3 id="dish-modal-title">Add Dish</h3>
+        <input type="hidden" id="dish-edit-index">
+        <div class="form-grid">
+            <div class="form-group"><label>Dish Name *</label><input type="text" id="d-name" placeholder="e.g. Lazziz Egg Chicken Roll"></div>
+            <div class="form-group"><label>Category *</label><select id="d-category"><option value="">Select category…</option></select></div>
+            <div class="form-group"><label>Price (₹) *</label><input type="number" id="d-price" placeholder="180"></div>
+            <div class="form-group"><label>Display Order</label><input type="number" id="d-order" placeholder="1"></div>
+            <div class="form-group full"><label>Description</label><textarea id="d-desc" placeholder="Describe this dish…"></textarea></div>
+            <div class="form-group"><label>Image URL</label><input type="url" id="d-image" placeholder="https://…"></div>
+            <div class="form-group">
+                <label>Upload Image</label>
+                <div class="upload-zone" onclick="document.getElementById('dish-img-file').click()" style="padding:12px">
+                    <i class="fas fa-upload"></i><p style="font-size:12px">Click to upload</p>
+                </div>
+                <input type="file" id="dish-img-file" accept="image/*" style="display:none" onchange="handleImageUpload(this,'d-image')">
+            </div>
+            <div class="form-group">
+                <label>Type</label>
+                <div class="toggle-row">
+                    <label class="toggle"><input type="checkbox" id="d-veg"><span class="toggle-slider"></span></label>
+                    <span id="d-veg-label" style="font-size:13px">Non-Veg</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Bestseller</label>
+                <div class="toggle-row">
+                    <label class="toggle"><input type="checkbox" id="d-best"><span class="toggle-slider"></span></label>
+                    <span style="font-size:13px;color:var(--text-muted)">Mark as bestseller</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Active</label>
+                <div class="toggle-row">
+                    <label class="toggle"><input type="checkbox" id="d-active" checked><span class="toggle-slider"></span></label>
+                    <span style="font-size:13px;color:var(--text-muted)">Visible on site</span>
+                </div>
+            </div>
+        </div>
+        <div class="upload-progress" id="upload-progress-dish"><div class="upload-progress-bar" id="upload-bar-dish" style="width:0%"></div></div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-dish')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveDish()"><i class="fas fa-save"></i> Save Dish</button>
+        </div>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-overlay" id="modal-cat">
+    <div class="modal">
+        <h3 id="cat-modal-title">Add Category</h3>
+        <input type="hidden" id="cat-edit-index">
+        <div class="form-grid">
+            <div class="form-group"><label>Category Name *</label><input type="text" id="c-name" placeholder="e.g. Signature Rolls"></div>
+            <div class="form-group"><label>Display Order</label><input type="number" id="c-order" placeholder="1"></div>
+            <div class="form-group full"><label>Description</label><textarea id="c-desc" placeholder="Brief description…"></textarea></div>
+            <div class="form-group"><label>Image URL</label><input type="url" id="c-image" placeholder="https://…"></div>
+            <div class="form-group">
+                <label>Active</label>
+                <div class="toggle-row">
+                    <label class="toggle"><input type="checkbox" id="c-active" checked><span class="toggle-slider"></span></label>
+                    <span style="font-size:13px;color:var(--text-muted)">Visible on site</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-cat')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCat()"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Gallery Modal -->
+<div class="modal-overlay" id="modal-gallery">
+    <div class="modal">
+        <h3 id="gallery-modal-title">Add Gallery Image</h3>
+        <input type="hidden" id="gal-edit-index">
+        <div class="form-grid">
+            <div class="form-group"><label>Title</label><input type="text" id="g-title" placeholder="e.g. Chicken Tikka Platter"></div>
+            <div class="form-group"><label>Display Order</label><input type="number" id="g-order" placeholder="1"></div>
+            <div class="form-group full"><label>Description</label><textarea id="g-desc" placeholder="Optional description…" rows="2"></textarea></div>
+            <div class="form-group"><label>Image URL *</label><input type="url" id="g-image" placeholder="https://…"></div>
+            <div class="form-group">
+                <label>Upload Image</label>
+                <div class="upload-zone" onclick="document.getElementById('gal-img-file').click()" style="padding:12px">
+                    <i class="fas fa-upload"></i><p style="font-size:12px">Click to upload</p>
+                </div>
+                <input type="file" id="gal-img-file" accept="image/*" style="display:none" onchange="handleImageUpload(this,'g-image')">
+            </div>
+            <div class="form-group">
+                <label>Active</label>
+                <div class="toggle-row">
+                    <label class="toggle"><input type="checkbox" id="g-active" checked><span class="toggle-slider"></span></label>
+                    <span style="font-size:13px;color:var(--text-muted)">Visible on site</span>
+                </div>
+            </div>
+        </div>
+        <div class="upload-progress" id="upload-progress-gal"><div class="upload-progress-bar" id="upload-bar-gal" style="width:0%"></div></div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-gallery')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveGallery()"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Blog Modal -->
+<div class="modal-overlay" id="modal-blog">
+    <div class="modal" style="max-width:720px">
+        <h3 id="blog-modal-title">New Blog Post</h3>
+        <input type="hidden" id="blog-edit-index">
+        <div class="form-grid">
+            <div class="form-group full"><label>Title *</label><input type="text" id="b-title" placeholder="Post title…"></div>
+            <div class="form-group"><label>Author</label><input type="text" id="b-author" placeholder="Chef Team"></div>
+            <div class="form-group"><label>Date</label><input type="date" id="b-date"></div>
+            <div class="form-group"><label>Display Order</label><input type="number" id="b-order" placeholder="1"></div>
+            <div class="form-group"><label>Image URL</label><input type="url" id="b-image" placeholder="https://…"></div>
+            <div class="form-group">
+                <label>Upload Image</label>
+                <div class="upload-zone" onclick="document.getElementById('blog-img-file').click()" style="padding:12px">
+                    <i class="fas fa-upload"></i><p style="font-size:12px">Click to upload</p>
+                </div>
+                <input type="file" id="blog-img-file" accept="image/*" style="display:none" onchange="handleImageUpload(this,'b-image')">
+            </div>
+            <div class="form-group full"><label>Excerpt</label><textarea id="b-excerpt" rows="2" placeholder="Short teaser shown on blog listing…"></textarea></div>
+            <div class="form-group full"><label>Full Content</label><textarea id="b-content" rows="6" placeholder="Full blog post content…"></textarea></div>
+            <div class="form-group">
+                <label>Active</label>
+                <div class="toggle-row">
+                    <label class="toggle"><input type="checkbox" id="b-active" checked><span class="toggle-slider"></span></label>
+                    <span style="font-size:13px;color:var(--text-muted)">Published</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-blog')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveBlog()"><i class="fas fa-save"></i> Publish</button>
+        </div>
+    </div>
+</div>
+
+<!-- Video Modal -->
+<div class="modal-overlay" id="modal-video">
+    <div class="modal">
+        <h3 id="video-modal-title">Add Video</h3>
+        <input type="hidden" id="vid-edit-index">
+        <div class="form-grid">
+            <div class="form-group"><label>Title *</label><input type="text" id="v-title" placeholder="Video title…"></div>
+            <div class="form-group"><label>YouTube Video ID *</label><input type="text" id="v-yt-id" placeholder="e.g. dQw4w9WgXcQ"></div>
+            <div class="form-group"><label>Display Order</label><input type="number" id="v-order" placeholder="1"></div>
+            <div class="form-group full"><label>Description</label><textarea id="v-desc" rows="2" placeholder="Brief description…"></textarea></div>
+            <div class="form-group">
+                <label>Active</label>
+                <div class="toggle-row">
+                    <label class="toggle"><input type="checkbox" id="v-active" checked><span class="toggle-slider"></span></label>
+                    <span style="font-size:13px;color:var(--text-muted)">Visible on site</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-video')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveVideo()"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Partner Modal -->
+<div class="modal-overlay" id="modal-partner">
+    <div class="modal">
+        <h3 id="partner-modal-title">Add Order Partner</h3>
+        <input type="hidden" id="part-edit-index">
+        <div class="form-grid">
+            <div class="form-group"><label>Platform Name *</label><input type="text" id="p-name" placeholder="e.g. Zomato, Swiggy, WhatsApp"></div>
+            <div class="form-group"><label>Display Order</label><input type="number" id="p-order" placeholder="1"></div>
+            <div class="form-group"><label>Logo URL</label><input type="url" id="p-logo" placeholder="https://…"></div>
+            <div class="form-group"><label>Order Link / URL</label><input type="url" id="p-url" placeholder="https://zomato.com/…"></div>
+            <div class="form-group">
+                <label>Active</label>
+                <div class="toggle-row">
+                    <label class="toggle"><input type="checkbox" id="p-active" checked><span class="toggle-slider"></span></label>
+                    <span style="font-size:13px;color:var(--text-muted)">Show on site</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-partner')">Cancel</button>
+            <button class="btn btn-primary" onclick="savePartner()"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Social Modal -->
+<div class="modal-overlay" id="modal-social">
+    <div class="modal">
+        <h3 id="social-modal-title">Add Social Link</h3>
+        <input type="hidden" id="soc-edit-index">
+        <div class="form-grid">
+            <div class="form-group"><label>Platform *</label><select id="s-platform">
+                <option value="Instagram">Instagram</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Twitter">Twitter / X</option>
+                <option value="YouTube">YouTube</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="TikTok">TikTok</option>
+                <option value="LinkedIn">LinkedIn</option>
+            </select></div>
+            <div class="form-group"><label>Icon Class (Font Awesome)</label><input type="text" id="s-icon" placeholder="fab fa-instagram"></div>
+            <div class="form-group full"><label>URL *</label><input type="url" id="s-url" placeholder="https://instagram.com/…"></div>
+            <div class="form-group"><label>Display Order</label><input type="number" id="s-order" placeholder="1"></div>
+            <div class="form-group">
+                <label>Active</label>
+                <div class="toggle-row">
+                    <label class="toggle"><input type="checkbox" id="s-active" checked><span class="toggle-slider"></span></label>
+                    <span style="font-size:13px;color:var(--text-muted)">Show on site</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-social')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveSocial()"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<script>
+// ════════════════════════════════════════════
+// CREDENTIALS & STATE
+// ════════════════════════════════════════════
+const CREDENTIALS = { email: 'uzairatwork02@gmail.com', password: 'Uzair123#' };
+let SCRIPT_URL = localStorage.getItem('adminScriptUrl') || 'https://script.google.com/macros/s/AKfycbwyYv1nTnv2sj31lUGVlfKhvYfUCa4L0PcRROQUt7fziDXsftDUJYrdNXrPInxVB23_2A/exec';
+let db = { config: {}, dishes: [], categories: [], gallery: [], blogs: [], videos: [], partners: [], social: [] };
+let editingSection = null;
+
+// ════════════════════════════════════════════
+// LOGIN
+// ════════════════════════════════════════════
+function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pw = document.getElementById('login-password').value;
+    if (email === CREDENTIALS.email && pw === CREDENTIALS.password) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        if (SCRIPT_URL) document.getElementById('script-url-input').value = SCRIPT_URL;
+        loadData();
+    } else {
+        document.getElementById('login-error').style.display = 'block';
+    }
+}
+function doLogout() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+}
+document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') doLogin();
+});
+
+// ════════════════════════════════════════════
+// SCRIPT URL
+// ════════════════════════════════════════════
+function saveScriptUrl() {
+    SCRIPT_URL = document.getElementById('script-url-input').value.trim();
+    localStorage.setItem('adminScriptUrl', SCRIPT_URL);
+    toast('Script URL saved!', 'success');
+    loadData();
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => {
+        if (n.getAttribute('onclick')?.includes("'" + name + "'")) n.classList.add('active');
+    });
+    document.getElementById('page-title').textContent = {
+        dashboard: 'Dashboard', config: 'Restaurant Info', menu: 'Menu & Dishes',
+        categories: 'Categories', gallery: 'Gallery', blogs: 'Blog Posts',
+        videos: 'Videos', partners: 'Order Partners', social: 'Social Media'
+    }[name] || name;
+    renderSection(name);
+}
+
+// ════════════════════════════════════════════
+// DATA LOADING
+// ════════════════════════════════════════════
+async function loadData() {
+    if (!SCRIPT_URL) return;
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getAllData`);
+        const data = await res.json();
+        // Normalize
+        db.config = data.config || {};
+        // Flatten dishes from grouped object
+        db.dishes = Object.values(data.dishes || {}).flat();
+        db.categories = data.menuCategories || [];
+        db.gallery = data.gallery || [];
+        db.blogs = data.blogs || [];
+        db.videos = data.videos || [];
+        db.partners = data.orderingPartners || [];
+        db.social = data.socialMedia || [];
+        updateStats();
+        populateConfigForm();
+    } catch(e) {
+        toast('Could not load data from script. Check URL.', 'error');
+    }
+}
+
+function updateStats() {
+    document.getElementById('stat-dishes').textContent = db.dishes.length;
+    document.getElementById('stat-cats').textContent = db.categories.length;
+    document.getElementById('stat-gallery').textContent = db.gallery.length;
+    document.getElementById('stat-blogs').textContent = db.blogs.length;
+    document.getElementById('stat-partners').textContent = db.partners.length;
+}
+
+// ════════════════════════════════════════════
+// CONFIG FORM
+// ════════════════════════════════════════════
+function populateConfigForm() {
+    const c = db.config;
+    const set = (id, key) => { const el = document.getElementById(id); if (el) el.value = c[key] || ''; };
+    set('cfg-name','RestaurantName'); set('cfg-tagline','Tagline'); set('cfg-desc','Description');
+    set('cfg-address','Address'); set('cfg-city','City'); set('cfg-state','State');
+    set('cfg-phone','Phone'); set('cfg-whatsapp','WhatsApp'); set('cfg-email','Email');
+    set('cfg-timing','Timing'); set('cfg-logo','LogoURL'); set('cfg-hero','HeroImage1');
+    set('cfg-fssai-num','FSSAINumber'); set('cfg-fssai-img','FSSAIImageURL');
+    set('cfg-instagram','InstagramURL'); set('cfg-maps','GoogleMapsURL');
+}
+
+async function saveConfig() {
+    if (!SCRIPT_URL) { toast('Set Script URL first', 'error'); return; }
+    const configData = {
+        RestaurantName: v('cfg-name'), Tagline: v('cfg-tagline'), Description: v('cfg-desc'),
+        Address: v('cfg-address'), City: v('cfg-city'), State: v('cfg-state'),
+        Phone: v('cfg-phone'), WhatsApp: v('cfg-whatsapp'), Email: v('cfg-email'),
+        Timing: v('cfg-timing'), LogoURL: v('cfg-logo'), HeroImage1: v('cfg-hero'),
+        FSSAINumber: v('cfg-fssai-num'), FSSAIImageURL: v('cfg-fssai-img'),
+        InstagramURL: v('cfg-instagram'), GoogleMapsURL: v('cfg-maps')
+    };
+    await postData('updateConfig', { config: configData });
+    toast('Restaurant info saved!', 'success');
+}
+
+// ════════════════════════════════════════════
+// RENDER TABLES
+// ════════════════════════════════════════════
+function renderSection(name) {
+    switch(name) {
+        case 'menu': renderDishes(); break;
+        case 'categories': renderCats(); break;
+        case 'gallery': renderGallery(); break;
+        case 'blogs': renderBlogs(); break;
+        case 'videos': renderVideos(); break;
+        case 'partners': renderPartners(); break;
+        case 'social': renderSocial(); break;
+    }
+}
+
+function renderDishes() {
+    const tbody = document.getElementById('dishes-table');
+    if (!db.dishes.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px">No dishes yet. Add one!</td></tr>'; return; }
+    tbody.innerHTML = db.dishes.map((d,i) => `
+        <tr>
+            <td>${d.ImageURL ? `<img src="${d.ImageURL}" class="item-img">` : '<div class="item-img" style="background:var(--border)"></div>'}</td>
+            <td><strong>${d.DishName}</strong>${d.IsBestseller||d.IsBestseller==='TRUE'?'<br><span class="badge badge-best">⭐ Best</span>':''}</td>
+            <td><span style="color:var(--text-muted);font-size:13px">${d.Category||'-'}</span></td>
+            <td><strong style="color:var(--gold)">₹${d.Price}</strong></td>
+            <td>${(d.IsVeg||d.IsVeg==='TRUE')?'<span class="badge badge-veg">🟢 Veg</span>':'<span class="badge badge-nonveg">🔴 Non-Veg</span>'}</td>
+            <td>${(d.Active!==false&&d.Active!=='FALSE')?'<span class="badge badge-active">Active</span>':'<span class="badge badge-inactive">Off</span>'}</td>
+            <td><div class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="openDishModal(${i})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteItem('dishes',${i})"><i class="fas fa-trash"></i></button>
+            </div></td>
+        </tr>`).join('');
+}
+
+function renderCats() {
+    const tbody = document.getElementById('cats-table');
+    if (!db.categories.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No categories yet.</td></tr>'; return; }
+    tbody.innerHTML = db.categories.map((c,i) => `
+        <tr>
+            <td><strong>${c.CategoryName}</strong></td>
+            <td style="color:var(--text-muted);font-size:13px">${c.Description||'-'}</td>
+            <td>${c.DisplayOrder||'-'}</td>
+            <td>${(c.Active!==false&&c.Active!=='FALSE')?'<span class="badge badge-active">Active</span>':'<span class="badge badge-inactive">Off</span>'}</td>
+            <td><div class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="openCatModal(${i})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteItem('categories',${i})"><i class="fas fa-trash"></i></button>
+            </div></td>
+        </tr>`).join('');
+}
+
+function renderGallery() {
+    const tbody = document.getElementById('gallery-table');
+    if (!db.gallery.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">No images yet.</td></tr>'; return; }
+    tbody.innerHTML = db.gallery.map((g,i) => `
+        <tr>
+            <td>${g.ImageURL?`<img src="${g.ImageURL}" class="item-img">`:'<div class="item-img"></div>'}</td>
+            <td><strong>${g.Title||'-'}</strong></td>
+            <td style="color:var(--text-muted);font-size:13px;max-width:200px">${g.Description||'-'}</td>
+            <td>${g.DisplayOrder||'-'}</td>
+            <td>${(g.Active!==false&&g.Active!=='FALSE')?'<span class="badge badge-active">Active</span>':'<span class="badge badge-inactive">Off</span>'}</td>
+            <td><div class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="openGalleryModal(${i})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteItem('gallery',${i})"><i class="fas fa-trash"></i></button>
+            </div></td>
+        </tr>`).join('');
+}
+
+function renderBlogs() {
+    const tbody = document.getElementById('blogs-table');
+    if (!db.blogs.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">No posts yet.</td></tr>'; return; }
+    tbody.innerHTML = db.blogs.map((b,i) => `
+        <tr>
+            <td>${b.ImageURL?`<img src="${b.ImageURL}" class="item-img">`:'<div class="item-img"></div>'}</td>
+            <td><strong>${b.Title}</strong><br><span style="color:var(--text-muted);font-size:12px">${b.Excerpt?.substring(0,60)||''}…</span></td>
+            <td style="color:var(--text-muted)">${b.Author||'-'}</td>
+            <td style="color:var(--text-muted)">${b.Date||'-'}</td>
+            <td>${(b.Active!==false&&b.Active!=='FALSE')?'<span class="badge badge-active">Published</span>':'<span class="badge badge-inactive">Draft</span>'}</td>
+            <td><div class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="openBlogModal(${i})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteItem('blogs',${i})"><i class="fas fa-trash"></i></button>
+            </div></td>
+        </tr>`).join('');
+}
+
+function renderVideos() {
+    const tbody = document.getElementById('videos-table');
+    if (!db.videos.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">No videos yet.</td></tr>'; return; }
+    tbody.innerHTML = db.videos.map((v,i) => `
+        <tr>
+            <td><code style="background:var(--surface2);padding:3px 6px;border-radius:4px;font-size:12px">${v.YouTubeVideoID}</code></td>
+            <td><strong>${v.Title}</strong></td>
+            <td style="color:var(--text-muted);font-size:13px">${v.Description||'-'}</td>
+            <td>${v.DisplayOrder||'-'}</td>
+            <td>${(v.Active!==false&&v.Active!=='FALSE')?'<span class="badge badge-active">Active</span>':'<span class="badge badge-inactive">Off</span>'}</td>
+            <td><div class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="openVideoModal(${i})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteItem('videos',${i})"><i class="fas fa-trash"></i></button>
+            </div></td>
+        </tr>`).join('');
+}
+
+function renderPartners() {
+    const tbody = document.getElementById('partners-table');
+    if (!db.partners.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">No partners yet.</td></tr>'; return; }
+    tbody.innerHTML = db.partners.map((p,i) => `
+        <tr>
+            <td><strong>${p.Name}</strong></td>
+            <td style="color:var(--text-muted);font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis">${p.LogoURL||'-'}</td>
+            <td><a href="${p.OrderURL}" target="_blank" style="color:var(--gold);font-size:12px">${p.OrderURL?.substring(0,35)||'-'}…</a></td>
+            <td>${p.DisplayOrder||'-'}</td>
+            <td>${(p.Active!==false&&p.Active!=='FALSE')?'<span class="badge badge-active">Active</span>':'<span class="badge badge-inactive">Off</span>'}</td>
+            <td><div class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="openPartnerModal(${i})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteItem('partners',${i})"><i class="fas fa-trash"></i></button>
+            </div></td>
+        </tr>`).join('');
+}
+
+function renderSocial() {
+    const tbody = document.getElementById('social-table');
+    if (!db.social.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">No links yet.</td></tr>'; return; }
+    tbody.innerHTML = db.social.map((s,i) => `
+        <tr>
+            <td><strong><i class="${s.IconClass}" style="margin-right:8px;color:var(--gold)"></i>${s.Platform}</strong></td>
+            <td><code style="font-size:12px">${s.IconClass||'-'}</code></td>
+            <td><a href="${s.URL}" target="_blank" style="color:var(--gold);font-size:13px">${s.URL?.substring(0,40)||'-'}</a></td>
+            <td>${s.DisplayOrder||'-'}</td>
+            <td>${(s.Active!==false&&s.Active!=='FALSE')?'<span class="badge badge-active">Active</span>':'<span class="badge badge-inactive">Off</span>'}</td>
+            <td><div class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="openSocialModal(${i})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteItem('social',${i})"><i class="fas fa-trash"></i></button>
+            </div></td>
+        </tr>`).join('');
+}
+
+// ════════════════════════════════════════════
+// MODALS
+// ════════════════════════════════════════════
+function openDishModal(idx) {
+    // Populate category select
+    const sel = document.getElementById('d-category');
+    sel.innerHTML = '<option value="">Select category…</option>' + db.categories.map(c=>`<option>${c.CategoryName}</option>`).join('');
+    
+    document.getElementById('dish-modal-title').textContent = idx !== undefined ? 'Edit Dish' : 'Add Dish';
+    document.getElementById('dish-edit-index').value = idx !== undefined ? idx : '';
+    if (idx !== undefined) {
+        const d = db.dishes[idx];
+        sv('d-name', d.DishName); sv('d-category', d.Category); sv('d-price', d.Price);
+        sv('d-order', d.DisplayOrder); sv('d-desc', d.Description); sv('d-image', d.ImageURL);
+        document.getElementById('d-veg').checked = d.IsVeg === true || d.IsVeg === 'TRUE';
+        document.getElementById('d-best').checked = d.IsBestseller === true || d.IsBestseller === 'TRUE';
+        document.getElementById('d-active').checked = d.Active !== false && d.Active !== 'FALSE';
+    } else {
+        ['d-name','d-category','d-price','d-order','d-desc','d-image'].forEach(id => sv(id,''));
+        document.getElementById('d-veg').checked = false;
+        document.getElementById('d-best').checked = false;
+        document.getElementById('d-active').checked = true;
+    }
+    openModal('modal-dish');
+}
+
+function saveDish() {
+    const idx = document.getElementById('dish-edit-index').value;
+    const dish = {
+        DishName: v('d-name'), Category: v('d-category'), Price: v('d-price'),
+        DisplayOrder: v('d-order'), Description: v('d-desc'), ImageURL: v('d-image'),
+        IsVeg: document.getElementById('d-veg').checked,
+        IsBestseller: document.getElementById('d-best').checked,
+        Active: document.getElementById('d-active').checked
+    };
+    if (!dish.DishName || !dish.Category || !dish.Price) { toast('Name, category and price required', 'error'); return; }
+    if (idx !== '') { db.dishes[parseInt(idx)] = dish; } else { db.dishes.push(dish); }
+    syncToSheet('Dishes', db.dishes, ['DishName','Category','Description','Price','ImageURL','IsVeg','IsBestseller','DisplayOrder','Active']);
+    closeModal('modal-dish'); renderDishes(); updateStats();
+    toast('Dish saved!', 'success');
+}
+
+function openCatModal(idx) {
+    document.getElementById('cat-modal-title').textContent = idx !== undefined ? 'Edit Category' : 'Add Category';
+    document.getElementById('cat-edit-index').value = idx !== undefined ? idx : '';
+    if (idx !== undefined) {
+        const c = db.categories[idx];
+        sv('c-name', c.CategoryName); sv('c-order', c.DisplayOrder); sv('c-desc', c.Description); sv('c-image', c.ImageURL);
+        document.getElementById('c-active').checked = c.Active !== false && c.Active !== 'FALSE';
+    } else {
+        ['c-name','c-order','c-desc','c-image'].forEach(id => sv(id,''));
+        document.getElementById('c-active').checked = true;
+    }
+    openModal('modal-cat');
+}
+
+function saveCat() {
+    const idx = document.getElementById('cat-edit-index').value;
+    const cat = { CategoryName: v('c-name'), Description: v('c-desc'), ImageURL: v('c-image'), DisplayOrder: v('c-order'), Active: document.getElementById('c-active').checked };
+    if (!cat.CategoryName) { toast('Category name required', 'error'); return; }
+    if (idx !== '') { db.categories[parseInt(idx)] = cat; } else { db.categories.push(cat); }
+    syncToSheet('MenuCategories', db.categories, ['CategoryName','Description','ImageURL','DisplayOrder','Active']);
+    closeModal('modal-cat'); renderCats(); updateStats();
+    toast('Category saved!', 'success');
+}
+
+function openGalleryModal(idx) {
+    document.getElementById('gallery-modal-title').textContent = idx !== undefined ? 'Edit Image' : 'Add Gallery Image';
+    document.getElementById('gal-edit-index').value = idx !== undefined ? idx : '';
+    if (idx !== undefined) {
+        const g = db.gallery[idx];
+        sv('g-title', g.Title); sv('g-order', g.DisplayOrder); sv('g-desc', g.Description); sv('g-image', g.ImageURL);
+        document.getElementById('g-active').checked = g.Active !== false && g.Active !== 'FALSE';
+    } else {
+        ['g-title','g-order','g-desc','g-image'].forEach(id => sv(id,''));
+        document.getElementById('g-active').checked = true;
+    }
+    openModal('modal-gallery');
+}
+
+function saveGallery() {
+    const idx = document.getElementById('gal-edit-index').value;
+    const item = { ImageURL: v('g-image'), Title: v('g-title'), Description: v('g-desc'), DisplayOrder: v('g-order'), Active: document.getElementById('g-active').checked };
+    if (!item.ImageURL) { toast('Image URL required', 'error'); return; }
+    if (idx !== '') { db.gallery[parseInt(idx)] = item; } else { db.gallery.push(item); }
+    syncToSheet('Gallery', db.gallery, ['ImageURL','Title','Description','DisplayOrder','Active']);
+    closeModal('modal-gallery'); renderGallery(); updateStats();
+    toast('Gallery updated!', 'success');
+}
+
+function openBlogModal(idx) {
+    document.getElementById('blog-modal-title').textContent = idx !== undefined ? 'Edit Post' : 'New Blog Post';
+    document.getElementById('blog-edit-index').value = idx !== undefined ? idx : '';
+    if (idx !== undefined) {
+        const b = db.blogs[idx];
+        sv('b-title', b.Title); sv('b-author', b.Author); sv('b-date', b.Date);
+        sv('b-order', b.DisplayOrder); sv('b-image', b.ImageURL); sv('b-excerpt', b.Excerpt); sv('b-content', b.Content);
+        document.getElementById('b-active').checked = b.Active !== false && b.Active !== 'FALSE';
+    } else {
+        ['b-title','b-author','b-date','b-order','b-image','b-excerpt','b-content'].forEach(id => sv(id,''));
+        document.getElementById('b-active').checked = true;
+        document.getElementById('b-date').value = new Date().toISOString().split('T')[0];
+    }
+    openModal('modal-blog');
+}
+
+function saveBlog() {
+    const idx = document.getElementById('blog-edit-index').value;
+    const post = { Title: v('b-title'), Excerpt: v('b-excerpt'), Content: v('b-content'), ImageURL: v('b-image'), Author: v('b-author'), Date: v('b-date'), DisplayOrder: v('b-order'), Active: document.getElementById('b-active').checked };
+    if (!post.Title) { toast('Title required', 'error'); return; }
+    if (idx !== '') { db.blogs[parseInt(idx)] = post; } else { db.blogs.push(post); }
+    syncToSheet('Blogs', db.blogs, ['Title','Excerpt','Content','ImageURL','Author','Date','DisplayOrder','Active']);
+    closeModal('modal-blog'); renderBlogs(); updateStats();
+    toast('Post saved!', 'success');
+}
+
+function openVideoModal(idx) {
+    document.getElementById('video-modal-title').textContent = idx !== undefined ? 'Edit Video' : 'Add Video';
+    document.getElementById('vid-edit-index').value = idx !== undefined ? idx : '';
+    if (idx !== undefined) {
+        const vd = db.videos[idx];
+        sv('v-title', vd.Title); sv('v-yt-id', vd.YouTubeVideoID); sv('v-order', vd.DisplayOrder); sv('v-desc', vd.Description);
+        document.getElementById('v-active').checked = vd.Active !== false && vd.Active !== 'FALSE';
+    } else {
+        ['v-title','v-yt-id','v-order','v-desc'].forEach(id => sv(id,''));
+        document.getElementById('v-active').checked = true;
+    }
+    openModal('modal-video');
+}
+
+function saveVideo() {
+    const idx = document.getElementById('vid-edit-index').value;
+    const item = { Title: v('v-title'), YouTubeVideoID: v('v-yt-id'), Description: v('v-desc'), DisplayOrder: v('v-order'), Active: document.getElementById('v-active').checked };
+    if (!item.Title || !item.YouTubeVideoID) { toast('Title and Video ID required', 'error'); return; }
+    if (idx !== '') { db.videos[parseInt(idx)] = item; } else { db.videos.push(item); }
+    syncToSheet('Videos', db.videos, ['Title','YouTubeVideoID','Description','DisplayOrder','Active']);
+    closeModal('modal-video'); renderVideos();
+    toast('Video saved!', 'success');
+}
+
+function openPartnerModal(idx) {
+    document.getElementById('partner-modal-title').textContent = idx !== undefined ? 'Edit Partner' : 'Add Order Partner';
+    document.getElementById('part-edit-index').value = idx !== undefined ? idx : '';
+    if (idx !== undefined) {
+        const p = db.partners[idx];
+        sv('p-name', p.Name); sv('p-logo', p.LogoURL); sv('p-url', p.OrderURL); sv('p-order', p.DisplayOrder);
+        document.getElementById('p-active').checked = p.Active !== false && p.Active !== 'FALSE';
+    } else {
+        ['p-name','p-logo','p-url','p-order'].forEach(id => sv(id,''));
+        document.getElementById('p-active').checked = true;
+    }
+    openModal('modal-partner');
+}
+
+function savePartner() {
+    const idx = document.getElementById('part-edit-index').value;
+    const item = { Name: v('p-name'), LogoURL: v('p-logo'), OrderURL: v('p-url'), DisplayOrder: v('p-order'), Active: document.getElementById('p-active').checked };
+    if (!item.Name) { toast('Name required', 'error'); return; }
+    if (idx !== '') { db.partners[parseInt(idx)] = item; } else { db.partners.push(item); }
+    syncToSheet('OrderingPartners', db.partners, ['Name','LogoURL','OrderURL','DisplayOrder','Active']);
+    closeModal('modal-partner'); renderPartners(); updateStats();
+    toast('Partner saved!', 'success');
+}
+
+const SOCIAL_ICONS = { Instagram:'fab fa-instagram', Facebook:'fab fa-facebook', Twitter:'fab fa-twitter', YouTube:'fab fa-youtube', WhatsApp:'fab fa-whatsapp', TikTok:'fab fa-tiktok', LinkedIn:'fab fa-linkedin' };
+function openSocialModal(idx) {
+    document.getElementById('social-modal-title').textContent = idx !== undefined ? 'Edit Link' : 'Add Social Link';
+    document.getElementById('soc-edit-index').value = idx !== undefined ? idx : '';
+    if (idx !== undefined) {
+        const s = db.social[idx];
+        sv('s-platform', s.Platform); sv('s-icon', s.IconClass); sv('s-url', s.URL); sv('s-order', s.DisplayOrder);
+        document.getElementById('s-active').checked = s.Active !== false && s.Active !== 'FALSE';
+    } else {
+        ['s-url','s-order'].forEach(id => sv(id,''));
+        sv('s-platform','Instagram'); sv('s-icon','fab fa-instagram');
+        document.getElementById('s-active').checked = true;
+    }
+    openModal('modal-social');
+}
+document.getElementById('s-platform').addEventListener('change', function() {
+    document.getElementById('s-icon').value = SOCIAL_ICONS[this.value] || '';
+});
+
+function saveSocial() {
+    const idx = document.getElementById('soc-edit-index').value;
+    const item = { Platform: v('s-platform'), URL: v('s-url'), IconClass: v('s-icon'), DisplayOrder: v('s-order'), Active: document.getElementById('s-active').checked };
+    if (!item.URL) { toast('URL required', 'error'); return; }
+    if (idx !== '') { db.social[parseInt(idx)] = item; } else { db.social.push(item); }
+    syncToSheet('SocialMedia', db.social, ['Platform','URL','IconClass','DisplayOrder','Active']);
+    closeModal('modal-social'); renderSocial();
+    toast('Social link saved!', 'success');
+}
+
+function deleteItem(table, idx) {
+    if (!confirm('Delete this item?')) return;
+    const colMaps = {
+        dishes: ['DishName','Category','Description','Price','ImageURL','IsVeg','IsBestseller','DisplayOrder','Active'],
+        categories: ['CategoryName','Description','ImageURL','DisplayOrder','Active'],
+        gallery: ['ImageURL','Title','Description','DisplayOrder','Active'],
+        blogs: ['Title','Excerpt','Content','ImageURL','Author','Date','DisplayOrder','Active'],
+        videos: ['Title','YouTubeVideoID','Description','DisplayOrder','Active'],
+        partners: ['Name','LogoURL','OrderURL','DisplayOrder','Active'],
+        social: ['Platform','URL','IconClass','DisplayOrder','Active']
+    };
+    const sheetNames = { dishes:'Dishes', categories:'MenuCategories', gallery:'Gallery', blogs:'Blogs', videos:'Videos', partners:'OrderingPartners', social:'SocialMedia' };
+    db[table].splice(idx, 1);
+    syncToSheet(sheetNames[table], db[table], colMaps[table]);
+    renderSection(document.querySelector('.nav-item.active')?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1] || 'dashboard');
+    updateStats();
+    toast('Deleted!', 'success');
+}
+
+// ════════════════════════════════════════════
+// SYNC TO SHEET
+// ════════════════════════════════════════════
+async function syncToSheet(sheetName, data, columns) {
+    if (!SCRIPT_URL) { toast('Set Script URL to sync data', 'error'); return; }
+    try {
+        const rows = data.map(item => columns.map(col => item[col] !== undefined ? item[col] : ''));
+        await postData('updateSheet', { sheetName, headers: columns, rows });
+    } catch(e) {
+        toast('Sync failed — data saved locally', 'error');
+    }
+}
+
+async function postData(action, payload) {
+    if (!SCRIPT_URL) return;
+    const res = await fetch(`${SCRIPT_URL}?action=${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        mode: 'no-cors'
+    });
+    return res;
+}
+
+// ════════════════════════════════════════════
+// IMAGE UPLOAD (Google Drive via Apps Script)
+// ════════════════════════════════════════════
+async function handleImageUpload(input, targetFieldId) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast('Image too large (max 5MB)', 'error'); return; }
+
+    if (!SCRIPT_URL) {
+        toast('Set Script URL to enable image upload', 'error');
+        // Still show local preview
+        const reader = new FileReader();
+        reader.onload = e => document.getElementById(targetFieldId).value = e.target.result;
+        reader.readAsDataURL(file);
+        return;
+    }
+
+    const progressEl = document.getElementById('upload-progress-' + targetFieldId.replace(/-/g,'').replace('image',''));
+    const barEl = document.getElementById('upload-bar-' + targetFieldId.replace(/-/g,'').replace('image',''));
+    if (progressEl) { progressEl.style.display = 'block'; }
+    if (barEl) { barEl.style.width = '30%'; }
+
+    try {
+        const base64 = await toBase64(file);
+        const res = await fetch(`${SCRIPT_URL}?action=uploadImage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileName: file.name, mimeType: file.type, data: base64.split(',')[1] })
+        });
+        const result = await res.json();
+        if (barEl) barEl.style.width = '100%';
+        if (result.url) {
+            document.getElementById(targetFieldId).value = result.url;
+            toast('Image uploaded! URL pasted.', 'success');
+        } else {
+            throw new Error('No URL returned');
+        }
+    } catch(e) {
+        // Fallback: use local data URL for preview
+        const reader = new FileReader();
+        reader.onload = ev => {
+            document.getElementById(targetFieldId).value = ev.target.result;
+            toast('Upload via Drive failed — using local URL. Add uploadImage action to your Apps Script.', 'error');
+        };
+        reader.readAsDataURL(file);
+    }
+    setTimeout(() => { if (progressEl) progressEl.style.display = 'none'; if (barEl) barEl.style.width = '0%'; }, 1500);
+}
+
+function toBase64(file) {
+    return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+    });
+}
+
+// ════════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════════
+function v(id) { return document.getElementById(id)?.value || ''; }
+function sv(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${msg}`;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+}
+
+document.getElementById('d-veg').addEventListener('change', function() {
+    document.getElementById('d-veg-label').textContent = this.checked ? 'Veg' : 'Non-Veg';
+});
+
+// Load URL from storage on init
+if (SCRIPT_URL) document.getElementById('script-url-input').value = SCRIPT_URL;
+</script>
+</body>
+</html>
