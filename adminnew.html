@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -519,6 +520,9 @@
                 </div>
                 <input type="file" id="dish-img-file" accept="image/*" style="display:none" onchange="handleImageUpload(this,'d-image')">
             </div>
+            <!-- Add these fields to Dish Modal after Image URL -->
+            <div class="form-group"><label>Order Platform</label><select id="d-order-platform"><option value="">Select platform…</option></select></div>
+            <div class="form-group"><label>Order Link (URL)</label><input type="url" id="d-order-link" placeholder="https://zomato.com/..."></div>
             <div class="form-group">
                 <label>Type</label>
                 <div class="toggle-row">
@@ -549,7 +553,7 @@
     </div>
 </div>
 
-<!-- Category Modal -->
+<!-- Category Modal (UPDATED) -->
 <div class="modal-overlay" id="modal-cat">
     <div class="modal">
         <h3 id="cat-modal-title">Add Category</h3>
@@ -558,7 +562,6 @@
             <div class="form-group"><label>Category Name *</label><input type="text" id="c-name" placeholder="e.g. Signature Rolls"></div>
             <div class="form-group"><label>Display Order</label><input type="number" id="c-order" placeholder="1"></div>
             <div class="form-group full"><label>Description</label><textarea id="c-desc" placeholder="Brief description…"></textarea></div>
-            <div class="form-group"><label>Image URL</label><input type="url" id="c-image" placeholder="https://…"></div>
             <div class="form-group">
                 <label>Active</label>
                 <div class="toggle-row">
@@ -573,6 +576,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Gallery Modal -->
 <div class="modal-overlay" id="modal-gallery">
@@ -988,20 +992,27 @@ function renderSocial() {
 // ════════════════════════════════════════════
 function openDishModal(idx) {
     // Populate category select
-    const sel = document.getElementById('d-category');
-    sel.innerHTML = '<option value="">Select category…</option>' + db.categories.map(c=>`<option>${c.CategoryName}</option>`).join('');
+    const catSel = document.getElementById('d-category');
+    catSel.innerHTML = '<option value="">Select category…</option>' + db.categories.map(c=>`<option>${c.CategoryName}</option>`).join('');
+    
+    // Populate order platform select
+    const platSel = document.getElementById('d-order-platform');
+    platSel.innerHTML = '<option value="">Select platform…</option>' + db.partners.map(p=>`<option>${p.Name}</option>`).join('');
     
     document.getElementById('dish-modal-title').textContent = idx !== undefined ? 'Edit Dish' : 'Add Dish';
     document.getElementById('dish-edit-index').value = idx !== undefined ? idx : '';
+    
     if (idx !== undefined) {
         const d = db.dishes[idx];
         sv('d-name', d.DishName); sv('d-category', d.Category); sv('d-price', d.Price);
         sv('d-order', d.DisplayOrder); sv('d-desc', d.Description); sv('d-image', d.ImageURL);
+        sv('d-order-platform', d.OrderPlatform || '');
+        sv('d-order-link', d.OrderLink || '');
         document.getElementById('d-veg').checked = d.IsVeg === true || d.IsVeg === 'TRUE';
         document.getElementById('d-best').checked = d.IsBestseller === true || d.IsBestseller === 'TRUE';
         document.getElementById('d-active').checked = d.Active !== false && d.Active !== 'FALSE';
     } else {
-        ['d-name','d-category','d-price','d-order','d-desc','d-image'].forEach(id => sv(id,''));
+        ['d-name','d-category','d-price','d-order','d-desc','d-image','d-order-platform','d-order-link'].forEach(id => sv(id,''));
         document.getElementById('d-veg').checked = false;
         document.getElementById('d-best').checked = false;
         document.getElementById('d-active').checked = true;
@@ -1014,26 +1025,30 @@ function saveDish() {
     const dish = {
         DishName: v('d-name'), Category: v('d-category'), Price: v('d-price'),
         DisplayOrder: v('d-order'), Description: v('d-desc'), ImageURL: v('d-image'),
+        OrderPlatform: v('d-order-platform'), OrderLink: v('d-order-link'),
         IsVeg: document.getElementById('d-veg').checked,
         IsBestseller: document.getElementById('d-best').checked,
         Active: document.getElementById('d-active').checked
     };
     if (!dish.DishName || !dish.Category || !dish.Price) { toast('Name, category and price required', 'error'); return; }
     if (idx !== '') { db.dishes[parseInt(idx)] = dish; } else { db.dishes.push(dish); }
-    syncToSheet('Dishes', db.dishes, ['DishName','Category','Description','Price','ImageURL','IsVeg','IsBestseller','DisplayOrder','Active']);
+    syncToSheet('Dishes', db.dishes, ['DishName','Category','Description','Price','ImageURL','IsVeg','IsBestseller','OrderPlatform','OrderLink','DisplayOrder','Active']);
     closeModal('modal-dish'); renderDishes(); updateStats();
     toast('Dish saved!', 'success');
 }
 
+// ── Category Modal (REMOVE ImageURL) ──
 function openCatModal(idx) {
     document.getElementById('cat-modal-title').textContent = idx !== undefined ? 'Edit Category' : 'Add Category';
     document.getElementById('cat-edit-index').value = idx !== undefined ? idx : '';
     if (idx !== undefined) {
         const c = db.categories[idx];
-        sv('c-name', c.CategoryName); sv('c-order', c.DisplayOrder); sv('c-desc', c.Description); sv('c-image', c.ImageURL);
+        sv('c-name', c.CategoryName); 
+        sv('c-order', c.DisplayOrder); 
+        sv('c-desc', c.Description);
         document.getElementById('c-active').checked = c.Active !== false && c.Active !== 'FALSE';
     } else {
-        ['c-name','c-order','c-desc','c-image'].forEach(id => sv(id,''));
+        ['c-name','c-order','c-desc'].forEach(id => sv(id,''));
         document.getElementById('c-active').checked = true;
     }
     openModal('modal-cat');
@@ -1041,10 +1056,15 @@ function openCatModal(idx) {
 
 function saveCat() {
     const idx = document.getElementById('cat-edit-index').value;
-    const cat = { CategoryName: v('c-name'), Description: v('c-desc'), ImageURL: v('c-image'), DisplayOrder: v('c-order'), Active: document.getElementById('c-active').checked };
+    const cat = { 
+        CategoryName: v('c-name'), 
+        Description: v('c-desc'), 
+        DisplayOrder: v('c-order'), 
+        Active: document.getElementById('c-active').checked 
+    };
     if (!cat.CategoryName) { toast('Category name required', 'error'); return; }
     if (idx !== '') { db.categories[parseInt(idx)] = cat; } else { db.categories.push(cat); }
-    syncToSheet('MenuCategories', db.categories, ['CategoryName','Description','ImageURL','DisplayOrder','Active']);
+    syncToSheet('MenuCategories', db.categories, ['CategoryName','Description','DisplayOrder','Active']);
     closeModal('modal-cat'); renderCats(); updateStats();
     toast('Category saved!', 'success');
 }
@@ -1222,50 +1242,70 @@ async function postData(action, payload) {
 // ════════════════════════════════════════════
 // IMAGE UPLOAD (Google Drive via Apps Script)
 // ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// IMAGE UPLOAD (FIXED - Form Encoding)
+// ════════════════════════════════════════════
 async function handleImageUpload(input, targetFieldId) {
     const file = input.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast('Image too large (max 5MB)', 'error'); return; }
+    if (file.size > 5 * 1024 * 1024) { 
+        toast('Image too large (max 5MB)', 'error'); 
+        return; 
+    }
 
     if (!SCRIPT_URL) {
         toast('Set Script URL to enable image upload', 'error');
-        // Still show local preview
-        const reader = new FileReader();
-        reader.onload = e => document.getElementById(targetFieldId).value = e.target.result;
-        reader.readAsDataURL(file);
         return;
     }
 
-    const progressEl = document.getElementById('upload-progress-' + targetFieldId.replace(/-/g,'').replace('image',''));
-    const barEl = document.getElementById('upload-bar-' + targetFieldId.replace(/-/g,'').replace('image',''));
-    if (progressEl) { progressEl.style.display = 'block'; }
-    if (barEl) { barEl.style.width = '30%'; }
+    const progressId = targetFieldId.replace(/[^a-z]/gi, '');
+    const progressEl = document.getElementById('upload-progress-' + progressId);
+    const barEl = document.getElementById('upload-bar-' + progressId);
+    
+    if (progressEl) progressEl.style.display = 'block';
+    if (barEl) barEl.style.width = '30%';
 
     try {
-        const base64 = await toBase64(file);
-        const res = await fetch(`${SCRIPT_URL}?action=uploadImage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileName: file.name, mimeType: file.type, data: base64.split(',')[1] })
-        });
-        const result = await res.json();
-        if (barEl) barEl.style.width = '100%';
-        if (result.url) {
-            document.getElementById(targetFieldId).value = result.url;
-            toast('Image uploaded! URL pasted.', 'success');
-        } else {
-            throw new Error('No URL returned');
-        }
-    } catch(e) {
-        // Fallback: use local data URL for preview
         const reader = new FileReader();
-        reader.onload = ev => {
-            document.getElementById(targetFieldId).value = ev.target.result;
-            toast('Upload via Drive failed — using local URL. Add uploadImage action to your Apps Script.', 'error');
-        };
         reader.readAsDataURL(file);
+        
+        reader.onload = async function(e) {
+            const rawLog = e.target.result.split(',');
+            const formData = new URLSearchParams();
+            formData.append('fileData', rawLog[1]);
+            formData.append('mimeType', rawLog[0].split(':')[1].split(';')[0]);
+            formData.append('fileName', file.name);
+
+            if (barEl) barEl.style.width = '60%';
+
+            const res = await fetch(`${SCRIPT_URL}?action=uploadImage`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (barEl) barEl.style.width = '100%';
+
+            const result = await res.json();
+            
+            if (result.url) {
+                document.getElementById(targetFieldId).value = result.url;
+                toast('Image uploaded successfully!', 'success');
+            } else {
+                throw new Error(result.error || 'Upload failed');
+            }
+
+            setTimeout(() => {
+                if (progressEl) progressEl.style.display = 'none';
+                if (barEl) barEl.style.width = '0%';
+            }, 1500);
+        };
+
+    } catch(err) {
+        console.error('Upload error:', err);
+        toast('Upload failed: ' + err.message, 'error');
+        if (progressEl) progressEl.style.display = 'none';
+        if (barEl) barEl.style.width = '0%';
     }
-    setTimeout(() => { if (progressEl) progressEl.style.display = 'none'; if (barEl) barEl.style.width = '0%'; }, 1500);
 }
 
 function toBase64(file) {
