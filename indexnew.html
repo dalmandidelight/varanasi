@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -267,6 +268,30 @@
         .tab-button:hover {
             border-color: var(--primary-color);
         }
+        /* Add to <style> section */
+.tab-button {
+    position: relative;
+}
+
+.tab-button .category-desc {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--primary-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    margin-bottom: 8px;
+    font-size: 12px;
+    z-index: 10;
+}
+
+.tab-button:hover .category-desc {
+    display: block;
+}
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
@@ -702,32 +727,33 @@
         }
 
         function populateMenu() {
-            const tabsContainer = document.getElementById('menu-tabs');
-            const itemsContainer = document.getElementById('menu-items-container');
-            const categories = restaurantData.menuCategories;
-            const dishes = restaurantData.dishes;
-            
-            if (!categories || categories.length === 0) {
-                itemsContainer.innerHTML = '<p class="text-center text-gray-400">Menu coming soon!</p>';
-                return;
-            }
-            
-            // Create tabs
-            tabsContainer.innerHTML = '';
-            categories.forEach((category, index) => {
-                const button = document.createElement('button');
-                button.className = `tab-button ${index === 0 ? 'active' : ''}`;
-                button.textContent = category.CategoryName;
-                button.setAttribute('data-category', category.CategoryName);
-                button.onclick = () => switchMenuTab(category.CategoryName);
-                tabsContainer.appendChild(button);
-            });
-            
-            // Display first category by default
-            if (categories.length > 0) {
-                displayMenuCategory(categories[0].CategoryName);
-            }
-        }
+    const tabsContainer = document.getElementById('menu-tabs');
+    const categories = restaurantData.menuCategories;
+    
+    if (!categories || categories.length === 0) {
+        return;
+    }
+    
+    // Create tabs with descriptions
+    tabsContainer.innerHTML = '';
+    categories.forEach((category, index) => {
+        const button = document.createElement('button');
+        button.className = `tab-button ${index === 0 ? 'active' : ''}`;
+        button.setAttribute('data-category', category.CategoryName);
+        button.onclick = () => switchMenuTab(category.CategoryName);
+        
+        button.innerHTML = `
+            ${category.CategoryName}
+            ${category.Description ? `<span class="category-desc">${category.Description}</span>` : ''}
+        `;
+        
+        tabsContainer.appendChild(button);
+    });
+    
+    if (categories.length > 0) {
+        displayMenuCategory(categories[0].CategoryName);
+    }
+}
 
         function switchMenuTab(categoryName) {
             // Update active tab
@@ -743,42 +769,81 @@
         }
 
         function displayMenuCategory(categoryName) {
-            const container = document.getElementById('menu-items-container');
-            const categoryDishes = restaurantData.dishes[categoryName] || [];
-            
-            if (categoryDishes.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-400">No items in this category yet.</p>';
-                return;
-            }
-            
-            container.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    ${categoryDishes.map(dish => `
-                        <div class="bg-gray-900 rounded-xl overflow-hidden shadow-xl card-hover relative">
-                            ${dish.IsBestseller ? '<div class="badge-bestseller">BESTSELLER</div>' : ''}
-                            ${dish.IsVeg ? '<div class="badge-veg"></div>' : '<div class="badge-nonveg"></div>'}
-                            ${dish.ImageURL ? `<img src="${dish.ImageURL}" alt="${dish.DishName}" class="w-full h-64 object-cover">` : ''}
-                            <div class="p-6">
-                                <h3 class="text-2xl font-semibold text-yellow-300 mb-2">${dish.DishName}</h3>
-                                <p class="text-gray-400 text-sm mb-4">${dish.Description || ''}</p>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-3xl font-bold text-gray-100">₹${dish.Price}</span>
-                                    <button onclick="orderDish('${dish.DishName}')" class="bg-yellow-500 text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-yellow-400 transition duration-300">
-                                        Order Now
-                                    </button>
-                                </div>
-                            </div>
+    const container = document.getElementById('menu-items-container');
+    const categoryDishes = restaurantData.dishes[categoryName] || [];
+    
+    if (categoryDishes.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-400">No items in this category yet.</p>';
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            ${categoryDishes.map(dish => `
+                <div class="bg-gray-900 rounded-xl overflow-hidden shadow-xl card-hover relative">
+                    ${dish.IsBestseller ? '<div class="badge-bestseller">BESTSELLER</div>' : ''}
+                    ${dish.IsVeg ? '<div class="badge-veg"></div>' : '<div class="badge-nonveg"></div>'}
+                    ${dish.ImageURL ? `<img src="${dish.ImageURL}" alt="${dish.DishName}" class="w-full h-64 object-cover">` : ''}
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">${dish.DishName}</h3>
+                        <p class="text-gray-400 text-sm mb-4">${dish.Description || ''}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-3xl font-bold text-gray-100">₹${dish.Price}</span>
+                            <button onclick="orderDish('${dish.DishName}', '${dish.OrderPlatform || ''}', '${dish.OrderLink || ''}')" class="bg-yellow-500 text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-yellow-400 transition duration-300">
+                                Order Now
+                            </button>
                         </div>
-                    `).join('')}
+                    </div>
                 </div>
-            `;
-        }
+            `).join('')}
+        </div>
+    `;
+}
 
-        function orderDish(dishName) {
-            const whatsappNum = restaurantData.config.WhatsApp || '91XXXXXXXXXX';
-            const message = `Hi! I would like to order: ${dishName}`;
-            window.open(`https://wa.me/${whatsappNum}?text=${encodeURIComponent(message)}`, '_blank');
-        }
+function orderDish(dishName, platform, orderLink) {
+    if (platform && orderLink) {
+        // Direct link available
+        window.open(orderLink, '_blank');
+    } else {
+        // Show platform selection modal
+        showOrderPlatformModal(dishName);
+    }
+}
+
+function showOrderPlatformModal(dishName) {
+    const partners = restaurantData.orderingPartners;
+    const whatsappNum = restaurantData.config.WhatsApp || '91XXXXXXXXXX';
+    
+    const modalHTML = `
+        <div id="order-platform-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:flex;align-items:center;justify-content:center;" onclick="this.remove()">
+            <div style="background:#1e2029;padding:32px;border-radius:16px;max-width:400px;width:90%;" onclick="event.stopPropagation()">
+                <h3 style="font-size:24px;color:#ECC94B;margin-bottom:20px;text-align:center;">Choose Platform</h3>
+                <p style="color:#a0aec0;margin-bottom:24px;text-align:center;">Order "${dishName}" via:</p>
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    ${partners.map(p => {
+                        if (p.Name === 'Direct WhatsApp') {
+                            return `<button onclick="window.open('https://wa.me/${whatsappNum}?text=${encodeURIComponent('Hi! I want to order: ' + dishName)}', '_blank'); document.getElementById('order-platform-modal').remove();" 
+                                style="background:#22c55e;color:white;padding:12px;border-radius:8px;border:none;font-weight:600;cursor:pointer;">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </button>`;
+                        } else {
+                            return `<button onclick="window.open('${p.OrderURL}', '_blank'); document.getElementById('order-platform-modal').remove();" 
+                                style="background:#ECC94B;color:#0d0e12;padding:12px;border-radius:8px;border:none;font-weight:600;cursor:pointer;">
+                                ${p.Name}
+                            </button>`;
+                        }
+                    }).join('')}
+                </div>
+                <button onclick="document.getElementById('order-platform-modal').remove();" 
+                    style="margin-top:16px;width:100%;background:transparent;border:1px solid #4a5568;color:#a0aec0;padding:10px;border-radius:8px;cursor:pointer;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
 
         function populateGallery() {
             const container = document.getElementById('gallery-container');
